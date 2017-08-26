@@ -1,4 +1,5 @@
-public class Partition {
+public class Sort {
+
 	/**
 	 * 以数组首元素为基数，将数组划分为2部分，左部都小于等于基数，右部都大于等于基数
 	 * 
@@ -36,4 +37,39 @@ public class Partition {
 		a[begin] = base;
 		return begin;
 	}
+
+	/**
+	 * 快速排序
+	 * 
+	 * @param a
+	 *            待排序数组
+	 * @param begin
+	 *            待排序首元素下标
+	 * @param end
+	 *            待排序尾元素下标
+	 */
+	public static void quickSort(int a[], int begin, int end) {
+		if (begin < end) {
+			int mid = partition(a, begin, end); // 以某元素为基数划分数组
+			// 递归调用快排方法，分别为划分出的两部分排序
+			quickSort(a, begin, mid - 1);
+			quickSort(a, mid + 1, end);
+		}
+	}
+
+	public static void main(String[] args) {
+		long startTime = System.nanoTime(); // 开始运行时间
+		int[] a = { 5, 9, 2, 1, 4, 7, 5, 8, 3, 6 }; // 测试数据
+		// 快速排序
+		quickSort(a, 0, 9);
+		long endTime = System.nanoTime(); // 结束运行时间
+		// 输出数据
+		for (int i : a) {
+			System.out.print(i + " ");
+		}
+		System.out.println();
+		System.out.println("程序运行时间： " + (endTime - startTime) + "ns");
+
+	}
+
 }
