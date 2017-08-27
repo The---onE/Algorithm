@@ -57,6 +57,38 @@ public class Sort {
 		}
 	}
 
+	/**
+	 * 寻找数组中第K小的数字
+	 * 
+	 * @param a
+	 *            待寻找的数据
+	 * @param begin
+	 *            // 待寻找首元素下标
+	 * @param end
+	 *            // 待寻找尾元素下标
+	 * @param k
+	 *            K
+	 * @return 第K小的数字
+	 */
+	public static int findKthLittleNumber(int a[], int begin, int end, int k) {
+		if (begin <= end) {
+			// 将数组划分为两部分
+			int mid = partition(a, begin, end);
+			int len = mid - begin + 1; // 划分后左部分加上基数的长度
+			if (len == k) {
+				// 基数位置的数字就是第K小的数字
+				return a[mid];
+			} else if (len < k) {
+				// 长度比K小，则第K小的数字在数组右部
+				return findKthLittleNumber(a, mid + 1, end, k - len);
+			} else {
+				// 长度比K大，则第K小的数字在数组左部
+				return findKthLittleNumber(a, begin, mid - 1, k);
+			}
+		}
+		return -1;
+	}
+
 	public static void main(String[] args) {
 		long startTime = System.nanoTime(); // 开始运行时间
 		int[] a = { 5, 9, 2, 1, 4, 7, 5, 8, 3, 6 }; // 测试数据
