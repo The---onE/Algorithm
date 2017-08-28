@@ -50,10 +50,10 @@ public class Sort {
 	 */
 	public static void quickSort(int a[], int begin, int end) {
 		if (begin < end) {
-			int mid = partition(a, begin, end); // 以某元素为基数划分数组
+			int index = partition(a, begin, end); // 以某元素为基数划分数组
 			// 递归调用快排方法，分别为划分出的两部分排序
-			quickSort(a, begin, mid - 1);
-			quickSort(a, mid + 1, end);
+			quickSort(a, begin, index - 1);
+			quickSort(a, index + 1, end);
 		}
 	}
 
@@ -73,20 +73,49 @@ public class Sort {
 	public static int findKthLittleNumber(int a[], int begin, int end, int k) {
 		if (begin <= end) {
 			// 将数组划分为两部分
-			int mid = partition(a, begin, end);
-			int len = mid - begin + 1; // 划分后左部分加上基数的长度
+			int index = partition(a, begin, end);
+			int len = index - begin + 1; // 划分后左部分加上基数的长度
 			if (len == k) {
 				// 基数位置的数字就是第K小的数字
-				return a[mid];
+				return a[index];
 			} else if (len < k) {
 				// 长度比K小，则第K小的数字在数组右部
-				return findKthLittleNumber(a, mid + 1, end, k - len);
+				return findKthLittleNumber(a, index + 1, end, k - len);
 			} else {
 				// 长度比K大，则第K小的数字在数组左部
-				return findKthLittleNumber(a, begin, mid - 1, k);
+				return findKthLittleNumber(a, begin, index - 1, k);
 			}
 		}
 		return -1;
+	}
+
+	/**
+	 * 查找数组中重复次数超过半数的数字
+	 * 
+	 * @param a
+	 *            待查找数组
+	 * @param begin
+	 *            待查找首元素下标
+	 * @param end
+	 *            待查找尾元素下标
+	 * @return 数组中重复次数超过半数的数字
+	 */
+	public static int moreThanHalfNumber(int[] a, int begin, int end) {
+		// 数组中间位置
+		int mid = (end - begin + 1) / 2;
+		// 划分数组，获得划分后基数的位置
+		int index = partition(a, begin, end);
+		// 不断划分直到基数位于中间位置
+		while (index != mid) {
+			// 在包含中间位置的区间再次划分
+			if (index > mid) {
+				index = partition(a, begin, index - 1);
+			} else {
+				index = partition(a, index + 1, end);
+			}
+		}
+		// 位于中间位置的基数即为重复次数超过半数的数字
+		return a[index];
 	}
 
 	public static void main(String[] args) {
@@ -101,7 +130,6 @@ public class Sort {
 		}
 		System.out.println();
 		System.out.println("程序运行时间： " + (endTime - startTime) + "ns");
-
 	}
 
 }
