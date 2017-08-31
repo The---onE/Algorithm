@@ -1,6 +1,27 @@
 public class DynamicProgramming {
 
 	/**
+	 * 处理0-1背包中的一个物品
+	 * 
+	 * @param cost
+	 *            该物品的重量
+	 * @param worth
+	 *            该物品的价值
+	 * @param volume
+	 *            背包容量
+	 * @param dp
+	 *            用于保存状态的数组
+	 */
+	private static void zeroOneItem(int cost, int worth, int volume, int[] dp) {
+		// 对于小于等于v的下标，获取的数据是未被覆盖的上个物品的数据
+		for (int v = volume; v >= cost; --v) {
+			int choose = dp[v - cost] + worth; // 选取该物品后的价值
+			int notChoose = dp[v]; // 不选取该物品的价值
+			dp[v] = Math.max(notChoose, choose); // 状态转移
+		}
+	}
+
+	/**
 	 * 0-1背包问题
 	 * 
 	 * @param cost
@@ -27,16 +48,32 @@ public class DynamicProgramming {
 
 		// 处理每一个物品
 		for (int i = 0; i < N; ++i) {
-			int c = cost[i]; // 当前物品的重量
-			// 对于小于等于v的下标，获取的数据是未被覆盖的上个物品的数据
-			for (int v = volume; v >= c; --v) {
-				int choose = dp[v - c] + worth[i]; // 选取该物品后的价值
-				int notChoose = dp[v]; // 不选取该物品的价值
-				dp[v] = Math.max(notChoose, choose); // 状态转移
-			}
+			zeroOneItem(cost[i], worth[i], volume, dp);
 		}
 		// 返回最大价值
 		return dp[volume];
+	}
+
+	/**
+	 * 处理完全(无界)背包中的一个物品
+	 * 
+	 * @param cost
+	 *            该物品的重量
+	 * @param worth
+	 *            该物品的价值
+	 * @param volume
+	 *            背包容量
+	 * @param dp
+	 *            用于保存状态的数组
+	 */
+	private static void unboundedItem(int cost, int worth, int volume, int[] dp) {
+		// 对于小于等于v的下标，获取的数据是可能被覆盖的数据
+		// 若是被覆盖的数据，则该物品已被选取过，尝试再次选取
+		for (int v = cost; v <= volume; ++v) {
+			int choose = dp[v - cost] + worth; // 选取该物品后的价值
+			int notChoose = dp[v]; // 不选取该物品的价值
+			dp[v] = Math.max(notChoose, choose); // 状态转移
+		}
 	}
 
 	/**
@@ -65,14 +102,7 @@ public class DynamicProgramming {
 
 		// 处理每一个物品
 		for (int i = 0; i < N; ++i) {
-			int c = cost[i]; // 当前物品的重量
-			// 对于小于等于v的下标，获取的数据是可能被覆盖的数据
-			// 若是被覆盖的数据，则该物品已被选取过，尝试再次选取
-			for (int v = c; v <= volume; ++v) {
-				int choose = dp[v - c] + worth[i]; // 选取该物品后的价值
-				int notChoose = dp[v]; // 不选取该物品的价值
-				dp[v] = Math.max(notChoose, choose); // 状态转移
-			}
+			unboundedItem(cost[i], worth[i], volume, dp);
 		}
 		// 返回最大价值
 		return dp[volume];
@@ -112,30 +142,19 @@ public class DynamicProgramming {
 			if (c * n >= volume) {
 				// 该物品不能全部装入背包
 				// 视为完全背包问题
-				for (int v = c; v <= volume; ++v) {
-					int choose = dp[v - c] + w; // 选取该物品后的价值
-					int notChoose = dp[v]; // 不选取该物品的价值
-					dp[v] = Math.max(notChoose, choose); // 状态转移
-				}
+				unboundedItem(c, w, volume, dp);
 			} else {
 				// 将物品分组，个数分别为1,2,4,...,2^(k-1),n-2^k+1，可以组合出1-n的所有个数
 				// 将每一组视为0-1背包问题
 				for (int k = 1; k < n; k *= 2) {
 					int kc = k * c;
 					int kw = k * w;
-					for (int v = volume; v >= kc; --v) {
-						int choose = dp[v - kc] + kw; // 选取该物品后的价值
-						int notChoose = dp[v]; // 不选取该物品的价值
-						dp[v] = Math.max(notChoose, choose); // 状态转移
-					}
+					// 视为0-1背包问题
+					zeroOneItem(kc, kw, volume, dp);
 					n -= k;
 				}
 				// 处理最后一组
-				for (int v = volume; v >= n * c; --v) {
-					int choose = dp[v - n * c] + n * w; // 选取该物品后的价值
-					int notChoose = dp[v]; // 不选取该物品的价值
-					dp[v] = Math.max(notChoose, choose); // 状态转移
-				}
+				zeroOneItem(n * c, n * w, volume, dp);
 			}
 		}
 		// 返回最大价值
@@ -145,7 +164,7 @@ public class DynamicProgramming {
 	public static void main(String[] args) {
 		int[] cost = { 2, 7, 3, 4, 8, 5, 8, 6, 4, 16 };
 		int[] worth = { 15, 25, 8, 9, 15, 9, 13, 9, 6, 14 };
-		int[] number = { 13, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+		int[] number = { 10, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 		int zeroOne = zeroOneKnapsack(cost, worth, 34);
 		int unbounded = unboundedKnapsack(cost, worth, 34);
 		int bounded = boundedKnapsack(cost, worth, number, 34);
