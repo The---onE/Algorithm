@@ -102,7 +102,7 @@ public class Sort {
 	 */
 	public static int moreThanHalfNumber(int[] a, int begin, int end) {
 		// 数组中间位置
-		int mid = (end - begin + 1) / 2;
+		int mid = (begin + end) / 2;
 		// 划分数组，获得划分后基数的位置
 		int index = partition(a, begin, end);
 		// 不断划分直到基数位于中间位置
@@ -118,14 +118,90 @@ public class Sort {
 		return a[index];
 	}
 
+	/**
+	 * 归并排序
+	 * 
+	 * @param a
+	 *            待排序数组
+	 * @param begin
+	 *            待排序首元素下标
+	 * @param end
+	 *            待排序尾元素下标
+	 */
+	public static void mergeSort(int a[], int begin, int end) {
+		if (begin < end) {
+			// 数组中间位置
+			int mid = (begin + end) / 2;
+			// 递归调用归并排序方法，分别为划分出的两部分排序
+			mergeSort(a, begin, mid);
+			mergeSort(a, mid + 1, end);
+			// 合并两部分
+			merge(a, begin, mid, end);
+		}
+	}
+
+	/**
+	 * 将数组两部分归并
+	 * 
+	 * @param a
+	 *            待归并数组
+	 * @param begin
+	 *            待归并首元素下标
+	 * @param mid
+	 *            待排序中间下标
+	 * @param end
+	 *            待归并尾元素下标
+	 */
+	public static void merge(int[] a, int begin, int mid, int end) {
+		// 临时数组
+		int[] temp = new int[a.length];
+		// 临时数组待存放位置的下标
+		int tempIndex = begin;
+		// 左部分待取出位置的下标
+		int tempLeft = begin;
+		// 右部分待取出位置的下标
+		int tempRight = mid + 1;
+		// 直到其中一部分全部取出
+		while (tempLeft <= mid && tempRight <= end) {
+			// 从两个部分待取出中较小数的存入临时数组
+			if (a[tempLeft] <= a[tempRight]) {
+				temp[tempIndex++] = a[tempLeft++];
+			} else {
+				temp[tempIndex++] = a[tempRight++];
+			}
+		}
+		// 未取完的部分的数据直接存入临时数组的剩余部分
+		while (tempLeft <= mid) {
+			temp[tempIndex++] = a[tempLeft++];
+		}
+		while (tempRight <= end) {
+			temp[tempIndex++] = a[tempRight++];
+		}
+		// 将临时数组中的内容覆盖到原数组中
+		while (begin <= end) {
+			a[begin] = temp[begin++];
+		}
+	}
+
 	public static void main(String[] args) {
 		long startTime = System.nanoTime(); // 开始运行时间
 		int[] a = { 5, 9, 2, 1, 4, 7, 5, 8, 3, 6 }; // 测试数据
 		// 快速排序
-		quickSort(a, 0, 9);
+		quickSort(a, 0, a.length - 1);
 		long endTime = System.nanoTime(); // 结束运行时间
 		// 输出数据
 		for (int i : a) {
+			System.out.print(i + " ");
+		}
+		System.out.println();
+		System.out.println("程序运行时间： " + (endTime - startTime) + "ns");
+		
+		int[] b = { 5, 9, 2, 1, 4, 7, 5, 8, 3, 6 }; // 测试数据
+		startTime = System.nanoTime(); // 开始运行时间
+		// 归并排序
+		mergeSort(b, 0, b.length - 1);
+		endTime = System.nanoTime(); // 结束运行时间
+		for (int i : b) {
 			System.out.print(i + " ");
 		}
 		System.out.println();
