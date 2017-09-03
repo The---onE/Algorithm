@@ -183,6 +183,38 @@ public class Sort {
 		}
 	}
 
+	/**
+	 * 希尔排序
+	 * 
+	 * @param a
+	 *            待排序数组
+	 */
+	public static void shellSort(int[] a) {
+		// 计算出最大的h值
+		int h = 1;
+		int length = a.length;
+		while (h <= length / 3) {
+			h = h * 3 + 1;
+		}
+		// 逐渐缩小分组间距直到排序完成
+		while (h > 0) {
+			// 分组进行插入排序
+			for (int i = h; i < length; i += h) {
+				if (a[i] < a[i - h]) {
+					int temp = a[i];
+					int j = i - h;
+					while (j >= 0 && a[j] > temp) {
+						a[j + h] = a[j];
+						j -= h;
+					}
+					a[j + h] = temp;
+				}
+			}
+			// 计算出下一个h值
+			h = (h - 1) / 3;
+		}
+	}
+
 	public static void main(String[] args) {
 		long startTime = System.nanoTime(); // 开始运行时间
 		int[] a = { 5, 9, 2, 1, 4, 7, 5, 8, 3, 6 }; // 测试数据
@@ -195,13 +227,26 @@ public class Sort {
 		}
 		System.out.println();
 		System.out.println("程序运行时间： " + (endTime - startTime) + "ns");
-		
+
 		int[] b = { 5, 9, 2, 1, 4, 7, 5, 8, 3, 6 }; // 测试数据
 		startTime = System.nanoTime(); // 开始运行时间
 		// 归并排序
 		mergeSort(b, 0, b.length - 1);
 		endTime = System.nanoTime(); // 结束运行时间
+		// 输出数据
 		for (int i : b) {
+			System.out.print(i + " ");
+		}
+		System.out.println();
+		System.out.println("程序运行时间： " + (endTime - startTime) + "ns");
+
+		int[] c = { 5, 9, 2, 1, 4, 7, 5, 8, 3, 6 }; // 测试数据
+		startTime = System.nanoTime(); // 开始运行时间
+		// 希尔排序
+		shellSort(c);
+		endTime = System.nanoTime(); // 结束运行时间
+		// 输出数据
+		for (int i : c) {
 			System.out.print(i + " ");
 		}
 		System.out.println();
