@@ -4,7 +4,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
-public class AStar {
+public class PathFinding {
+
 	// 地图宽高
 	public static int n = 0;
 
@@ -12,9 +13,9 @@ public class AStar {
 	static class Node {
 		int x; // 横坐标
 		int y; // 纵坐标
-		double f; // 预估代价 f=g+h
+		double f; // 用于A*算法的预估代价 f=g+h
 		int g; // 从起点到该节点的实际代价
-		Node father; // 父节点，用户获取路径
+		Node father; // 父节点，用于获取路径
 
 		@Override
 		public boolean equals(Object obj) {
@@ -43,63 +44,10 @@ public class AStar {
 
 	}
 
+	// 用于A*算法的临时存储空间
 	public static List<Node> open = new ArrayList<>(); // OPEN表
 	public static boolean[][] closed; // 地图节点是否CLOSED
 	public static boolean[][] map; // 地图节点是否可达
-
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-
-		// 读取第一行
-		String[] test = sc.nextLine().split(" ");
-		n = test.length;
-		// 地图数组
-		map = new boolean[n][n];
-		// 处理第一行
-		for (int j = 0; j < n; ++j) {
-			if (test[j].equals("1")) {
-				map[0][j] = false;
-			} else {
-				map[0][j] = true;
-			}
-		}
-		// 读取剩余数据
-		for (int i = 1; i < n; ++i) {
-			test = sc.nextLine().split(" ");
-			for (int j = 0; j < n; ++j) {
-				if (test[j].equals("1")) {
-					map[i][j] = false;
-				} else {
-					map[i][j] = true;
-				}
-			}
-		}
-		// 初始化CLOSED表
-		closed = new boolean[n][n];
-
-		// 计算最短路径
-		Node node = aStar(0, 0, n - 1, n - 1);
-		if (node != null) {
-			// 可达
-			printPath(node);
-		} else {
-			// 不可达
-			System.out.println("nopath");
-		}
-
-		sc.close();
-	}
-
-	/**
-	 * 顺序打印路径
-	 * @param node 要打印的终点节点
-	 */
-	public static void printPath(Node node) {
-		if (node.father != null) {
-			printPath(node.father);
-		}
-		System.out.println(node.x + "," + node.y); 
-	}
 
 	/**
 	 * A*算法
@@ -188,7 +136,7 @@ public class AStar {
 	}
 
 	/**
-	 * 启发函数，预估至终点的代价
+	 * A*算法的启发函数，预估至终点的代价
 	 * 
 	 * @param x
 	 *            横坐标
@@ -201,5 +149,68 @@ public class AStar {
 		// return Math.sqrt((n - 1 - x) * (n - 1 - x) + (n - 1 - y) * (n - 1 -
 		// y));
 		// return 0;
+	}
+	
+	/**
+	 * 开始A*算法
+	 */
+	public static void aStar() {
+		// 初始化CLOSED表
+		closed = new boolean[n][n];
+
+		// 计算最短路径
+		Node node = aStar(0, 0, n - 1, n - 1);
+		if (node != null) {
+			// 可达
+			printPath(node);
+		} else {
+			// 不可达
+			System.out.println("nopath");
+		}
+	}
+
+	/**
+	 * 顺序打印路径
+	 * @param node 要打印的终点节点
+	 */
+	public static void printPath(Node node) {
+		if (node.father != null) {
+			printPath(node.father);
+		}
+		System.out.println(node.x + "," + node.y); 
+	}
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+
+		// 读取第一行
+		String[] test = sc.nextLine().split(" ");
+		n = test.length;
+		// 地图数组
+		map = new boolean[n][n];
+		// 处理第一行
+		for (int j = 0; j < n; ++j) {
+			if (test[j].equals("1")) {
+				map[0][j] = false;
+			} else {
+				map[0][j] = true;
+			}
+		}
+		// 读取剩余数据
+		for (int i = 1; i < n; ++i) {
+			test = sc.nextLine().split(" ");
+			for (int j = 0; j < n; ++j) {
+				if (test[j].equals("1")) {
+					map[i][j] = false;
+				} else {
+					map[i][j] = true;
+				}
+			}
+		}
+		
+		// A*算法
+		aStar();
+
+		sc.close();
 	}
 }
