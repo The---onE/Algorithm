@@ -215,6 +215,94 @@ public class Sort {
 		}
 	}
 
+	static class HeapSort {
+		public static void init() {
+			// 初始化静态类
+		}
+		
+		public static void heapSort(int[] a) {
+			int heapSize = a.length;
+
+			// 将数组转化为最大堆
+			buildMaxHeap(a);
+
+			for (int i = 0; i < a.length; i++) {
+				// 将最大堆堆顶(最大值)与当前堆末尾交换
+				int temp = a[0];
+				a[0] = a[heapSize - 1];
+				a[heapSize - 1] = temp;
+
+				heapSize--;
+				maxify(a, 0, heapSize);
+			}
+		}
+
+		/**
+		 * 使二叉树成为最大堆
+		 * 
+		 * @param a
+		 *            待排序数组
+		 */
+		private static void buildMaxHeap(int[] a) {
+			for (int i = a.length / 2 - 1; i >= 0; i--) {
+				maxify(a, i, a.length); // 从最后一个非叶子节点开始，向上最大堆化，使整棵树成为最大堆
+			}
+		}
+
+		/**
+		 * 调整某节点，使以其为根的二叉树满足最大堆的性质
+		 * 
+		 * @param a
+		 *            待排序数组
+		 * @param i
+		 *            待调整的根索引，其左右子树都应为最大堆
+		 * @param heapsize
+		 *            堆大小
+		 */
+		private static void maxify(int a[], int i, int heapSize) {
+			int max = i; // 最大值
+			// 在当前节点和左右子节点中查找最大值所在下标
+			if (left(i) < heapSize && a[left(i)] > a[max])
+				max = left(i); //
+			if (right(i) < heapSize && a[right(i)] > a[max])
+				max = right(i);
+
+			if (max == i || max >= heapSize) {
+				// 堆范围内该节点大于其子节点，不需要调整
+				return;
+			}
+			// 交换当前节点与最大的子节点
+			int temp = a[i];
+			a[i] = a[max];
+			a[max] = temp;
+
+			// 被交换的子树的最大堆性质可能被破坏，需重新调整
+			maxify(a, max, heapSize);
+		}
+
+		/**
+		 * 获取左子节点索引
+		 * 
+		 * @param i
+		 *            当前节点索引
+		 * @return 左子节点索引
+		 */
+		private static int left(int i) {
+			return 2 * (i + 1) - 1;
+		}
+
+		/**
+		 * 获取右子节点索引
+		 * 
+		 * @param i
+		 *            当前节点索引
+		 * @return 右子节点索引
+		 */
+		private static int right(int i) {
+			return 2 * (i + 1);
+		}
+	}
+
 	public static void main(String[] args) {
 		long startTime = System.nanoTime(); // 开始运行时间
 		int[] a = { 5, 9, 2, 1, 4, 7, 5, 8, 3, 6 }; // 测试数据
@@ -247,6 +335,19 @@ public class Sort {
 		endTime = System.nanoTime(); // 结束运行时间
 		// 输出数据
 		for (int i : c) {
+			System.out.print(i + " ");
+		}
+		System.out.println();
+		System.out.println("程序运行时间： " + (endTime - startTime) + "ns");
+
+		HeapSort.init();
+		int[] d = { 5, 9, 2, 1, 4, 7, 5, 8, 3, 6 }; // 测试数据
+		startTime = System.nanoTime(); // 开始运行时间
+		// 堆排序
+		HeapSort.heapSort(d);
+		endTime = System.nanoTime(); // 结束运行时间
+		// 输出数据
+		for (int i : d) {
 			System.out.print(i + " ");
 		}
 		System.out.println();
