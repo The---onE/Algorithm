@@ -1,3 +1,6 @@
+import java.util.LinkedList;
+import java.util.Queue;
+
 public class Tree {
 
 	/**
@@ -18,14 +21,32 @@ public class Tree {
 		/**
 		 * 后序遍历输出
 		 */
-		public void postOrderrint() {
+		public void postOrderPrint() {
 			if (left != null) {
-				left.postOrderrint();
+				left.postOrderPrint();
 			}
 			if (right != null) {
-				right.postOrderrint();
+				right.postOrderPrint();
 			}
 			System.out.print(val + " ");
+		}
+
+		/**
+		 * 层序遍历输出
+		 */
+		public void levelOrderPrint() {
+			Queue<TreeNode> queue = new LinkedList<TreeNode>();
+			queue.add(this);
+			while (!queue.isEmpty()) {
+				TreeNode temp = queue.poll();
+				System.out.print(temp.val + " ");
+				if (temp.left != null) {
+					queue.add(temp.left);
+				}
+				if (temp.right != null) {
+					queue.add(temp.right);
+				}
+			}
 		}
 	}
 
@@ -89,6 +110,8 @@ public class Tree {
 		int[] pre = { 1, 2, 4, 7, 3, 5, 6, 8 };
 		int[] in = { 4, 7, 2, 1, 5, 3, 8, 6 };
 		TreeNode tree = makeBinaryTree(pre, in);
-		tree.postOrderrint();
+		tree.postOrderPrint(); // 后序遍历
+		System.out.println();
+		tree.levelOrderPrint(); // 层序遍历
 	}
 }
