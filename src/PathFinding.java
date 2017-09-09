@@ -1,14 +1,16 @@
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Scanner;
 
 public class PathFinding {
 
 	private static int n = 0; // 地图宽高
 	private static boolean[][] map; // 地图节点是否可达
-	
+
 	// 地图节点
 	static class Node {
 		int x; // 横坐标
@@ -43,11 +45,10 @@ public class PathFinding {
 
 		}
 	}
-	
+
 	static class AStar {
 
 		/**
-		 * 测试节点
 		 * 
 		 * @param father
 		 *            父节点
@@ -55,9 +56,13 @@ public class PathFinding {
 		 *            横坐标
 		 * @param y
 		 *            纵坐标
+		 * @param closed
+		 *            CLOSED表
+		 * @param open
+		 *            OPEN表
 		 * @return 是否被添加至OPEN表
 		 */
-		public static boolean testNode(Node father, int x, int y,
+		private static boolean testNode(Node father, int x, int y,
 				boolean[][] closed, List<Node> open) {
 			Node node;
 			if (!closed[x][y] && map[x][y]) {
@@ -88,86 +93,190 @@ public class PathFinding {
 		 *            纵坐标
 		 * @return 启发值
 		 */
-		public static double h(int x, int y) {
+		private static double h(int x, int y) {
 			return Math.abs(n - 1 - x) + Math.abs(n - 1 - y);
-			// return Math.sqrt((n - 1 - x) * (n - 1 - x) + (n - 1 - y) * (n - 1 -
+			// return Math.sqrt((n - 1 - x) * (n - 1 - x) + (n - 1 - y) * (n - 1
+			// -
 			// y));
 			// return 0;
 		}
+
+		/**
+		 * A*算法
+		 * 
+		 * @param startX
+		 *            起点横坐标
+		 * @param startY
+		 *            起点纵坐标
+		 * @param endX
+		 *            终点横坐标
+		 * @param endY
+		 *            终点纵坐标
+		 * @return 终点节点，若不可达返回null
+		 */
+		private static Node aStar(int startX, int startY, int endX, int endY) {
+			if (n > 0) {
+				// 临时存储空间
+				List<Node> open = new ArrayList<>(); // OPEN表
+				boolean[][] closed = new boolean[n][n]; // 地图节点是否CLOSED
+
+				// 添加初始节点至OPEN表
+				Node start = new Node();
+				start.x = startX;
+				start.y = startY;
+				start.f = AStar.h(startX, startY);
+				start.g = 0;
+				open.add(start);
+				// 循环直到OPEN表为空
+				while (!open.isEmpty()) {
+					// 获取OPEN表中预估代价最低的节点
+					Node no = open.get(0);
+					// 若到达终点则返回
+					if (no.x == endX && no.y == endY) {
+						return no;
+					}
+					// 将当前节点关闭并移出OPEN表
+					closed[no.x][no.y] = true;
+					open.remove(no);
+					// 测试左侧节点
+					if (no.x > 0) {
+						testNode(no, no.x - 1, no.y, closed, open);
+					}
+					// 右侧
+					if (no.x < n - 1) {
+						testNode(no, no.x + 1, no.y, closed, open);
+					}
+					// 下侧
+					if (no.y > 0) {
+						testNode(no, no.x, no.y - 1, closed, open);
+					}
+					// 下侧
+					if (no.y < n - 1) {
+						testNode(no, no.x, no.y + 1, closed, open);
+					}
+					// 按预估代价排序OPEN中节点
+					Collections.sort(open, new Node.AStarComparator());
+				}
+			}
+			return null;
+		}
+
+		/**
+		 * 开始A*算法
+		 */
+		public static void aStar() {
+			// 计算最短路径
+			Node node = aStar(0, 0, n - 1, n - 1);
+			if (node != null) {
+				// 可达
+				printPath(node);
+			} else {
+				// 不可达
+				System.out.println("nopath");
+			}
+		}
 	}
 
-	/**
-	 * A*算法
-	 * 
-	 * @param startX
-	 *            起点横坐标
-	 * @param startY
-	 *            起点纵坐标
-	 * @param endX
-	 *            终点横坐标
-	 * @param endY
-	 *            终点纵坐标
-	 * @return 终点节点，若不可达返回null
-	 */
-	public static Node aStar(int startX, int startY, int endX, int endY) {
-		if (n > 0) {
-			// 临时存储空间
-			List<Node> open = new ArrayList<>(); // OPEN表
-			boolean[][] closed = new boolean[n][n]; // 地图节点是否CLOSED
+	static class BFS {
 
-			// 添加初始节点至OPEN表
+		/**
+		 * 测试节点
+		 * 
+		 * @param father
+		 *            父节点
+		 * @param x
+		 *            横坐标
+		 * @param y
+		 *            纵坐标
+		 * @param closed
+		 *            CLOSED表
+		 * @param queue
+		 *            待搜索队列
+		 * @return 是否被添加至搜索队列
+		 */
+		private static boolean testNode(Node father, int x, int y,
+				boolean[][] closed, Queue<Node> queue) {
+			Node node;
+			// 若尚未被访问且可到达
+			if (!closed[x][y] && map[x][y]) {
+				// 生成节点
+				node = new Node();
+				node.x = x;
+				node.y = y;
+				// 计算实际代价
+				node.g = father.g + 1;
+				node.father = father;
+				// 添加至队列
+				queue.add(node);
+				return true;
+			}
+			return false;
+		}
+
+		/**
+		 * 广度优先搜索
+		 * 
+		 * @param startX
+		 *            起点横坐标
+		 * @param startY
+		 *            起点纵坐标
+		 * @param endX
+		 *            终点横坐标
+		 * @param endY
+		 *            终点纵坐标
+		 * @return 终点节点，若不可达返回null
+		 */
+		private static Node bfs(int startX, int startY, int endX, int endY) {
+			Queue<Node> queue = new LinkedList<>(); // 用于搜索的队列
+			boolean[][] closed = new boolean[n][n]; // 地图节点是否被访问
+			// 添加初始节点至队列
 			Node start = new Node();
 			start.x = startX;
 			start.y = startY;
-			start.f = AStar.h(startX, startY);
 			start.g = 0;
-			open.add(start);
-			// 循环直到OPEN表为空
-			while (!open.isEmpty()) {
-				// 获取OPEN表中预估代价最低的节点
-				Node no = open.get(0);
+			queue.add(start);
+			// 节点已被访问
+			closed[startX][startY] = true;
+			// 循环直到队列为空
+			while (!queue.isEmpty()) {
+				Node no = queue.poll();
 				// 若到达终点则返回
 				if (no.x == endX && no.y == endY) {
 					return no;
 				}
-				// 将当前节点关闭并移出OPEN表
-				closed[no.x][no.y] = true;
-				open.remove(no);
 				// 测试左侧节点
 				if (no.x > 0) {
-					AStar.testNode(no, no.x - 1, no.y, closed, open);
+					testNode(no, no.x - 1, no.y, closed, queue);
 				}
 				// 右侧
 				if (no.x < n - 1) {
-					AStar.testNode(no, no.x + 1, no.y, closed, open);
+					testNode(no, no.x + 1, no.y, closed, queue);
 				}
 				// 下侧
 				if (no.y > 0) {
-					AStar.testNode(no, no.x, no.y - 1, closed, open);
+					testNode(no, no.x, no.y - 1, closed, queue);
 				}
 				// 下侧
 				if (no.y < n - 1) {
-					AStar.testNode(no, no.x, no.y + 1, closed, open);
+					testNode(no, no.x, no.y + 1, closed, queue);
 				}
-				// 按预估代价排序OPEN中节点
-				Collections.sort(open, new Node.AStarComparator());
 			}
+			return null;
 		}
-		return null;
-	}
 
-	/**
-	 * 开始A*算法
-	 */
-	public static void aStar() {
-		// 计算最短路径
-		Node node = aStar(0, 0, n - 1, n - 1);
-		if (node != null) {
-			// 可达
-			printPath(node);
-		} else {
-			// 不可达
-			System.out.println("nopath");
+		/**
+		 * 开始广度优先搜索
+		 */
+		public static void bfs() {
+			// 搜索路径
+			Node node = bfs(0, 0, n - 1, n - 1);
+			if (node != null) {
+				// 可达
+				printPath(node);
+			} else {
+				// 不可达
+				System.out.println("nopath");
+			}
 		}
 	}
 
@@ -180,8 +289,9 @@ public class PathFinding {
 	public static void printPath(Node node) {
 		if (node.father != null) {
 			printPath(node.father);
+			System.out.print("→");
 		}
-		System.out.println(node.x + "," + node.y);
+		System.out.print(node.x + "," + node.y);
 	}
 
 	public static void main(String[] args) {
@@ -213,7 +323,11 @@ public class PathFinding {
 		}
 
 		// A*算法
-		aStar();
+		AStar.aStar();
+		System.out.println();
+		// 广度优先搜索
+		BFS.bfs();
+		System.out.println();
 
 		sc.close();
 	}
