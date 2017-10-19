@@ -188,6 +188,37 @@ public class DynamicProgramming {
 		return dp[volume];
 	}
 
+	/**
+	 * 最长公共子序列 dp[i][j] = { max(dp[i+1][j+1] + 1) , source[i]==after[j] |
+	 * max(dp[i+1][j], dp[i][j+1]) , source[i]!=after[j] }
+	 * 
+	 * @param a
+	 *            原字符串A
+	 * @param b
+	 *            原字符串B
+	 * @param i
+	 *            字符串A待判断索引
+	 * @param j
+	 *            字符串B待判断索引
+	 * @return 最长公共子序列长度
+	 */
+	public static int LCS(String a, String b, int i, int j) {
+		if (i >= a.length() || j >= b.length()) {
+			// 超出字符串范围
+			return 0;
+		}
+		int res;
+		if (a.charAt(i) == b.charAt(j)) {
+			res = LCS(a, b, i + 1, j + 1) + 1;
+		} else {
+			int x = LCS(a, b, i + 1, j);
+			int y = LCS(a, b, i, j + 1);
+			res = Math.max(x, y);
+		}
+
+		return res;
+	}
+
 	public static void main(String[] args) {
 		int[] cost = { 2, 7, 3, 4, 8, 5, 8, 6, 4, 16 };
 		int[] worth = { 15, 25, 8, 9, 15, 9, 13, 9, 6, 14 };
@@ -202,6 +233,10 @@ public class DynamicProgramming {
 		System.out.println(unbounded);
 		int bounded = boundedKnapsack(cost, worth, number, 34);
 		System.out.println(bounded);
+		
+		String a = "2017 11 02";
+		String b = "02 11 2017";
+		System.out.println(LCS(a, b, 0, 0));
 	}
 
 }
